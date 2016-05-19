@@ -33,8 +33,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
     private static final String AUTOUPDATE_MODE_FOREONLY = "foreonly";
     private static final String AUTOUPDATE_MODE_FOREBACK = "foreback";
     private static final String COMSCORE_DEFAULT_LABEL_KEY = "name";
-    private String clientId;
-    private String publisherSecret;
+
     private String autoUpdateMode;
     private int autoUpdateInterval = 60;
     private boolean isEnterprise;
@@ -136,12 +135,9 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
 
     @Override
     protected List<ReportingMessage> onKitCreate(Map<String, String> settings, Context context) {
-        if (needsRestart()){
-            clientId = getSettings().get(CLIENT_ID);
-            comScore.setCustomerC2(clientId);
-            publisherSecret = getSettings().get(PUBLISHER_SECRET);
-            comScore.setPublisherSecret(publisherSecret);
-        }
+        comScore.setAppContext(context);
+        comScore.setCustomerC2(getSettings().get(CLIENT_ID));
+        comScore.setPublisherSecret(getSettings().get(PUBLISHER_SECRET));
 
         int tempUpdateInterval = 60;
         try {
@@ -172,12 +168,8 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         return null;
     }
 
-    private boolean needsRestart() {
-        return !getSettings().get(CLIENT_ID).equals(clientId) || !getSettings().get(PUBLISHER_SECRET).equals(publisherSecret);
-    }
-
     @Override
-    public List<ReportingMessage> onActivityStopped(Activity activity) {
+    public List<ReportingMessage> onActivityPaused(Activity activity) {
         comScore.onExitForeground();
         List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
         messageList.add(
@@ -202,7 +194,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
     }
 
     @Override
-    public List<ReportingMessage> onActivityStarted(Activity activity) {
+    public List<ReportingMessage> onActivityResumed(Activity activity) {
         comScore.onEnterForeground();
         List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
         messageList.add(
@@ -212,12 +204,12 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
     }
 
     @Override
-    public List<ReportingMessage> onActivityResumed(Activity activity) {
+    public List<ReportingMessage> onActivityStarted(Activity activity) {
         return null;
     }
 
     @Override
-    public List<ReportingMessage> onActivityPaused(Activity activity) {
+    public List<ReportingMessage> onActivityStopped(Activity activity) {
         return null;
     }
 
