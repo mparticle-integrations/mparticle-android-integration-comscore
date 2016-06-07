@@ -103,6 +103,25 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
     }
 
     @Override
+    public void setUserAttributeList(String key, List<String> list) {
+
+    }
+
+    @Override
+    public boolean supportsAttributeLists() {
+        return !isEnterprise;
+    }
+
+    @Override
+    public void setAllUserAttributes(Map<String, String> attributes, Map<String, List<String>> attributeLists) {
+        if (isEnterprise) {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                setUserAttribute(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    @Override
     public void removeUserAttribute(String key) {
         if (isEnterprise){
             comScore.getLabels().remove(KitUtils.sanitizeAttributeKey(key));
