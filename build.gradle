@@ -10,6 +10,12 @@ buildscript {
 
 apply plugin: 'com.mparticle.kit'
 
+repositories {
+    maven {
+        url  "https://comscore.bintray.com/Analytics"
+    }
+}
+
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.comscore:android-analytics:5.0.4'
 }

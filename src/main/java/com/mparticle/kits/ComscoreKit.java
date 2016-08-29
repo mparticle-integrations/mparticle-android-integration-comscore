@@ -4,38 +4,27 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
-import com.comscore.analytics.comScore;
+import com.comscore.Analytics;
+import com.comscore.PartnerConfiguration;
+import com.comscore.PublisherConfiguration;
+import com.comscore.utils.log.LogLevel;
 import com.mparticle.MPEvent;
 import com.mparticle.MParticle;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * <p/>
- * Embedded implementation of the Comscore SDK, tested against Comscore 2.14.0923.
- * <p/>
- */
-public class ComscoreKit extends KitIntegration implements KitIntegration.EventListener, KitIntegration.AttributeListener, KitIntegration.ActivityListener {
-    //Server config constants defined for this provider
-    //keys to provide access to the comscore account.
+
+public class ComscoreKit extends KitIntegration implements KitIntegration.EventListener, KitIntegration.AttributeListener, KitIntegration.ActivityListener, KitIntegration.SessionListener {
+
     private static final String CLIENT_ID = "CustomerC2Value";
     private static final String PUBLISHER_SECRET = "PublisherSecret";
-    private static final String USE_HTTPS = "UseHttps";
     private static final String PRODUCT = "product";
     private static final String APPNAME = "appName";
-    private static final String AUTOUPDATE_MODE_KEY = "autoUpdateMode";
-    private static final String AUTOUPDATE_INTERVAL = "autoUpdateInterval";
-
-    private static final String AUTOUPDATE_MODE_FOREONLY = "foreonly";
-    private static final String AUTOUPDATE_MODE_FOREBACK = "foreback";
+    private static final String PARTNER_ID = "partnerId";
     private static final String COMSCORE_DEFAULT_LABEL_KEY = "name";
-
-    private String autoUpdateMode;
-    private int autoUpdateInterval = 60;
     private boolean isEnterprise;
 
     @Override
@@ -74,9 +63,9 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         }
         comscoreLabels.put(COMSCORE_DEFAULT_LABEL_KEY, event.getEventName());
         if (MParticle.EventType.Navigation.equals(event.getEventType())){
-            comScore.view(comscoreLabels);
+            Analytics.notifyViewEvent(comscoreLabels);
         }else{
-            comScore.hidden(comscoreLabels);
+            Analytics.notifyHiddenEvent(comscoreLabels);
         }
         messages.add(
                 ReportingMessage.fromEvent(this,
@@ -98,7 +87,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
     @Override
     public void setUserAttribute(String key, String value) {
         if (isEnterprise){
-            comScore.setLabel(KitUtils.sanitizeAttributeKey(key), value);
+            Analytics.getConfiguration().setPersistentLabel(KitUtils.sanitizeAttributeKey(key), value);
         }
     }
 
@@ -124,14 +113,14 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
     @Override
     public void removeUserAttribute(String key) {
         if (isEnterprise){
-            comScore.getLabels().remove(KitUtils.sanitizeAttributeKey(key));
+            Analytics.getConfiguration().removePersistentLabel(KitUtils.sanitizeAttributeKey(key));
         }
     }
 
     @Override
     public void removeUserIdentity(MParticle.IdentityType identityType) {
         if (isEnterprise){
-            comScore.getLabels().remove(identityType.toString());
+            Analytics.getConfiguration().removePersistentLabel(identityType.toString());
         }
     }
 
@@ -143,7 +132,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
     @Override
     public void setUserIdentity(MParticle.IdentityType identityType, String id) {
         if (isEnterprise){
-            comScore.setLabel(identityType.toString(), id);
+            Analytics.getConfiguration().setPersistentLabel(identityType.toString(), id);
         }
     }
 
@@ -154,42 +143,33 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
 
     @Override
     protected List<ReportingMessage> onKitCreate(Map<String, String> settings, Context context) {
-        comScore.setAppContext(context);
-        comScore.setCustomerC2(getSettings().get(CLIENT_ID));
-        comScore.setPublisherSecret(getSettings().get(PUBLISHER_SECRET));
+        PartnerConfiguration partnerConfiguration = new PartnerConfiguration.Builder()
+                .partnerId(settings.get(PARTNER_ID))
+                .build();
+        Analytics.getConfiguration().addClient(partnerConfiguration);
 
-        int tempUpdateInterval = 60;
-        try {
-            tempUpdateInterval = Integer.parseInt(getSettings().get(AUTOUPDATE_INTERVAL));
-        }catch (NumberFormatException nfe){
+        PublisherConfiguration.Builder builder = new PublisherConfiguration.Builder();
+        builder.publisherId(getSettings().get(CLIENT_ID));
+        builder.publisherSecret(getSettings().get(PUBLISHER_SECRET));
+        builder.secureTransmission(true);
 
+        if (MParticle.getInstance().getEnvironment() == MParticle.Environment.Development) {
+            Analytics.setLogLevel(LogLevel.DEBUG);
         }
-        if (!getSettings().get(AUTOUPDATE_MODE_KEY).equals(autoUpdateMode) || tempUpdateInterval != autoUpdateInterval){
-            autoUpdateInterval = tempUpdateInterval;
-            autoUpdateMode = getSettings().get(AUTOUPDATE_MODE_KEY);
-            if (AUTOUPDATE_MODE_FOREBACK.equals(autoUpdateMode)){
-                comScore.enableAutoUpdate(autoUpdateInterval, false);
-            }else if (AUTOUPDATE_MODE_FOREONLY.equals(autoUpdateMode)){
-                comScore.enableAutoUpdate(autoUpdateInterval, true);
-            }else {
-                comScore.disableAutoUpdate();
-            }
-        }
-
-        boolean useHttps = Boolean.parseBoolean(getSettings().get(USE_HTTPS));
-        comScore.setSecure(useHttps);
-        comScore.setDebug(MParticle.getInstance().getEnvironment() == MParticle.Environment.Development);
         isEnterprise = "enterprise".equals(getSettings().get(PRODUCT));
         String appName = getSettings().get(APPNAME);
         if (appName != null){
-            comScore.setAppName(appName);
+            builder.applicationName(appName);
         }
+        PublisherConfiguration publisherConfiguration = builder.build();
+        Analytics.getConfiguration().addClient(publisherConfiguration);
+        Analytics.start(context);
         return null;
     }
 
     @Override
     public List<ReportingMessage> onActivityPaused(Activity activity) {
-        comScore.onExitForeground();
+        Analytics.notifyExitForeground();
         List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
         messageList.add(
                 new ReportingMessage(this, ReportingMessage.MessageType.APP_STATE_TRANSITION, System.currentTimeMillis(), null)
@@ -214,7 +194,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
 
     @Override
     public List<ReportingMessage> onActivityResumed(Activity activity) {
-        comScore.onEnterForeground();
+        Analytics.notifyEnterForeground();
         List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
         messageList.add(
                 new ReportingMessage(this, ReportingMessage.MessageType.APP_STATE_TRANSITION, System.currentTimeMillis(), null)
@@ -234,7 +214,9 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
 
     @Override
     public List<ReportingMessage> setOptOut(boolean optOutStatus) {
-        comScore.setEnabled(!optOutStatus);
+        if (!optOutStatus) {
+            Analytics.getConfiguration().disable();
+        }
         List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
         messageList.add(
                 new ReportingMessage(this, ReportingMessage.MessageType.OPT_OUT, System.currentTimeMillis(), null)
@@ -243,4 +225,23 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         return messageList;
     }
 
+    @Override
+    public List<ReportingMessage> onSessionStart() {
+        Analytics.notifyUxActive();
+        List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
+        messageList.add(
+                new ReportingMessage(this, ReportingMessage.MessageType.SESSION_START, System.currentTimeMillis(), null)
+        );
+        return messageList;
+    }
+
+    @Override
+    public List<ReportingMessage> onSessionEnd() {
+        Analytics.notifyUxInactive();
+        List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
+        messageList.add(
+                new ReportingMessage(this, ReportingMessage.MessageType.SESSION_END, System.currentTimeMillis(), null)
+        );
+        return messageList;
+    }
 }
