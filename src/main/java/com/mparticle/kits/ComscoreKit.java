@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ComscoreKit extends KitIntegration implements KitIntegration.EventListener, KitIntegration.AttributeListener, KitIntegration.ActivityListener, KitIntegration.SessionListener {
+public class ComscoreKit extends KitIntegration implements KitIntegration.EventListener, KitIntegration.AttributeListener, KitIntegration.ActivityListener {
 
     private static final String CLIENT_ID = "CustomerC2Value";
     private static final String PUBLISHER_SECRET = "PublisherSecret";
@@ -221,26 +221,6 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         messageList.add(
                 new ReportingMessage(this, ReportingMessage.MessageType.OPT_OUT, System.currentTimeMillis(), null)
                         .setOptOut(optOutStatus)
-        );
-        return messageList;
-    }
-
-    @Override
-    public List<ReportingMessage> onSessionStart() {
-        Analytics.notifyUxActive();
-        List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
-        messageList.add(
-                new ReportingMessage(this, ReportingMessage.MessageType.SESSION_START, System.currentTimeMillis(), null)
-        );
-        return messageList;
-    }
-
-    @Override
-    public List<ReportingMessage> onSessionEnd() {
-        Analytics.notifyUxInactive();
-        List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
-        messageList.add(
-                new ReportingMessage(this, ReportingMessage.MessageType.SESSION_END, System.currentTimeMillis(), null)
         );
         return messageList;
     }
