@@ -17,5 +17,5 @@ repositories {
 }
 
 dependencies {
-    compile 'com.comscore:android-analytics:5.0.6'
+    compile 'com.comscore:android-analytics:5.3.1'
 }
