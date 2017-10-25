@@ -17,7 +17,7 @@ This repository contains the [comScore](https://www.comscore.com/) integration f
 
     ```groovy
     dependencies {
-        compile 'com.mparticle:android-comscore-kit:4+'
+        compile 'com.mparticle:android-comscore-kit:5+'
     }
     ```
 
