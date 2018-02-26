@@ -7,7 +7,7 @@ import android.os.Bundle;
 import com.comscore.Analytics;
 import com.comscore.PartnerConfiguration;
 import com.comscore.PublisherConfiguration;
-import com.comscore.utils.log.LogLevel;
+import com.comscore.util.log.LogLevel;
 import com.mparticle.MPEvent;
 import com.mparticle.MParticle;
 
@@ -154,7 +154,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         builder.secureTransmission(true);
 
         if (MParticle.getInstance().getEnvironment() == MParticle.Environment.Development) {
-            Analytics.setLogLevel(LogLevel.DEBUG);
+            Analytics.setLogLevel(LogLevel.VERBOSE);
         }
         isEnterprise = "enterprise".equals(getSettings().get(PRODUCT));
         String appName = getSettings().get(APPNAME);
