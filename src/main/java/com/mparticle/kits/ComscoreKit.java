@@ -10,6 +10,8 @@ import com.comscore.PublisherConfiguration;
 import com.comscore.util.log.LogLevel;
 import com.mparticle.MPEvent;
 import com.mparticle.MParticle;
+import com.mparticle.kits_core.KitIntegration;
+import com.mparticle.kits_core.ReportingMessage;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ComscoreKit extends KitIntegration implements KitIntegration.EventListener, KitIntegration.AttributeListener, KitIntegration.ActivityListener {
+public class ComscoreKit extends AbstractKitIntegration implements KitIntegration.EventListener, KitIntegration.AttributeListener, KitIntegration.ActivityListener {
 
     private static final String CLIENT_ID = "CustomerC2Value";
     private static final String PUBLISHER_SECRET = "PublisherSecret";
@@ -68,7 +70,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
             Analytics.notifyHiddenEvent(comscoreLabels);
         }
         messages.add(
-                ReportingMessage.fromEvent(this,
+                ReportingMessageImpl.fromEvent(this,
                         new MPEvent.Builder(event).info(comscoreLabels).build()
                 )
         );
@@ -142,7 +144,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
     }
 
     @Override
-    protected List<ReportingMessage> onKitCreate(Map<String, String> settings, Context context) {
+    public List<ReportingMessage> onKitCreate(Map<String, String> settings, Context context) {
         PartnerConfiguration partnerConfiguration = new PartnerConfiguration.Builder()
                 .partnerId(settings.get(PARTNER_ID))
                 .build();
@@ -172,7 +174,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         Analytics.notifyExitForeground();
         List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
         messageList.add(
-                new ReportingMessage(this, ReportingMessage.MessageType.APP_STATE_TRANSITION, System.currentTimeMillis(), null)
+                new ReportingMessageImpl(this, ReportingMessageImpl.MessageType.APP_STATE_TRANSITION, System.currentTimeMillis(), null)
         );
         return messageList;
     }
@@ -197,7 +199,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         Analytics.notifyEnterForeground();
         List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
         messageList.add(
-                new ReportingMessage(this, ReportingMessage.MessageType.APP_STATE_TRANSITION, System.currentTimeMillis(), null)
+                new ReportingMessageImpl(this, ReportingMessageImpl.MessageType.APP_STATE_TRANSITION, System.currentTimeMillis(), null)
         );
         return messageList;
     }
@@ -219,7 +221,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         }
         List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
         messageList.add(
-                new ReportingMessage(this, ReportingMessage.MessageType.OPT_OUT, System.currentTimeMillis(), null)
+                new ReportingMessageImpl(this, ReportingMessageImpl.MessageType.OPT_OUT, System.currentTimeMillis(), null)
                         .setOptOut(optOutStatus)
         );
         return messageList;
