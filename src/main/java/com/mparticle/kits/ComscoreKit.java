@@ -20,9 +20,7 @@ import java.util.Map;
 public class ComscoreKit extends KitIntegration implements KitIntegration.EventListener, KitIntegration.AttributeListener, KitIntegration.ActivityListener {
 
     private static final String CLIENT_ID = "CustomerC2Value";
-    private static final String PUBLISHER_SECRET = "PublisherSecret";
     private static final String PRODUCT = "product";
-    private static final String APPNAME = "appName";
     private static final String PARTNER_ID = "partnerId";
     private static final String COMSCORE_DEFAULT_LABEL_KEY = "name";
     private boolean isEnterprise;
@@ -150,17 +148,12 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
 
         PublisherConfiguration.Builder builder = new PublisherConfiguration.Builder();
         builder.publisherId(getSettings().get(CLIENT_ID));
-        builder.publisherSecret(getSettings().get(PUBLISHER_SECRET));
         builder.secureTransmission(true);
 
         if (MParticle.getInstance().getEnvironment() == MParticle.Environment.Development) {
             Analytics.setLogLevel(LogLevel.VERBOSE);
         }
         isEnterprise = "enterprise".equals(getSettings().get(PRODUCT));
-        String appName = getSettings().get(APPNAME);
-        if (appName != null){
-            builder.applicationName(appName);
-        }
         PublisherConfiguration publisherConfiguration = builder.build();
         Analytics.getConfiguration().addClient(publisherConfiguration);
         Analytics.start(context);
