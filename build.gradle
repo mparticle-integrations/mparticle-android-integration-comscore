@@ -15,6 +15,12 @@ buildscript {
 
 apply plugin: 'com.mparticle.kit'
 
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
 repositories {
     maven {
         url  "https://comscore.bintray.com/Analytics"
@@ -22,5 +28,5 @@ repositories {
 }
 
 dependencies {
-    api 'com.comscore:android-analytics:6.4.1'
+    api 'com.comscore:android-analytics:6.5.2'
 }
