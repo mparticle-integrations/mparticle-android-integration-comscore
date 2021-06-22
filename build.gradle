@@ -28,5 +28,5 @@ repositories {
 }
 
 dependencies {
-    api 'com.comscore:android-analytics:6.7.0'
+    api 'com.comscore:android-analytics:6.7.1'
 }
