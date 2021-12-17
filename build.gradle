@@ -22,12 +22,6 @@ android {
     }
 }
 
-repositories {
-    maven {
-        url  "https://comscore.bintray.com/Analytics"
-    }
-}
-
 dependencies {
     api 'com.comscore:android-analytics:6.7.2'
 }
