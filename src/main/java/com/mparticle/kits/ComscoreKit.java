@@ -47,7 +47,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         }
         List<ReportingMessage> messages = new LinkedList<ReportingMessage>();
         HashMap<String, String> comscoreLabels;
-        Map<String, String> attributes = event.getInfo();
+        Map<String, String> attributes = event.getCustomAttributeStrings();
         if (attributes == null) {
             comscoreLabels = new HashMap<String, String>();
         }else if (!(attributes instanceof HashMap)){
@@ -67,7 +67,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
         }
         messages.add(
                 ReportingMessage.fromEvent(this,
-                        new MPEvent.Builder(event).info(comscoreLabels).build()
+                        new MPEvent.Builder(event).customAttributes(comscoreLabels).build()
                 )
         );
         return messages;
@@ -77,7 +77,7 @@ public class ComscoreKit extends KitIntegration implements KitIntegration.EventL
     public List<ReportingMessage>  logScreen(String screenName, Map<String, String> eventAttributes) {
         return logEvent(
                 new MPEvent.Builder(screenName, MParticle.EventType.Navigation)
-                        .info(eventAttributes)
+                        .customAttributes(eventAttributes)
                         .build()
         );
     }
