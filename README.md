@@ -18,7 +18,7 @@ This repository contains the [comScore](https://www.comscore.com/) integration f
 
 ### Documentation
 
-[comScore integration](http://docs.mparticle.com/?java#comscore)
+[comScore integration](https://docs.mparticle.com/integrations/comscore/event/)
 
 ### License
 
