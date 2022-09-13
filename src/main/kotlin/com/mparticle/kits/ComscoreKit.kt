@@ -155,7 +155,7 @@ class ComscoreKit : KitIntegration(), KitIntegration.EventListener, AttributeLis
 
     override fun onActivitySaveInstanceState(
         activity: Activity,
-        outState: Bundle
+        outState: Bundle?
     ): List<ReportingMessage> = emptyList()
 
 
@@ -163,7 +163,7 @@ class ComscoreKit : KitIntegration(), KitIntegration.EventListener, AttributeLis
 
     override fun onActivityCreated(
         activity: Activity,
-        savedInstanceState: Bundle
+        savedInstanceState: Bundle?
     ): List<ReportingMessage> = emptyList()
 
     override fun onActivityResumed(activity: Activity): List<ReportingMessage> {
