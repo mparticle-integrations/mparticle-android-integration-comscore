@@ -12,22 +12,27 @@ import com.mparticle.MParticle
 import com.mparticle.MParticle.IdentityType
 import com.mparticle.kits.KitIntegration.ActivityListener
 import com.mparticle.kits.KitIntegration.AttributeListener
-import java.util.*
+import java.util.HashMap
+import java.util.LinkedList
 
-class ComscoreKit : KitIntegration(), KitIntegration.EventListener, AttributeListener,
+class ComscoreKit :
+    KitIntegration(),
+    KitIntegration.EventListener,
+    AttributeListener,
     ActivityListener {
     private var isEnterprise = false
+
     override fun leaveBreadcrumb(breadcrumb: String): List<ReportingMessage> = emptyList()
 
     override fun logError(
         message: String,
-        errorAttributes: Map<String, String>
+        errorAttributes: Map<String, String>,
     ): List<ReportingMessage> = emptyList()
 
     override fun logException(
         exception: Exception,
         exceptionAttributes: Map<String, String>,
-        message: String
+        message: String,
     ): List<ReportingMessage> = emptyList()
 
     override fun logEvent(event: MPEvent): List<ReportingMessage>? {
@@ -59,35 +64,44 @@ class ComscoreKit : KitIntegration(), KitIntegration.EventListener, AttributeLis
         messages.add(
             ReportingMessage.fromEvent(
                 this,
-                MPEvent.Builder(event).customAttributes(comscoreLabels).build()
-            )
+                MPEvent.Builder(event).customAttributes(comscoreLabels).build(),
+            ),
         )
         return messages
     }
 
     override fun logScreen(
         screenName: String,
-        eventAttributes: Map<String, String>
-    ): List<ReportingMessage> {
-        return logEvent(
-            MPEvent.Builder(screenName, MParticle.EventType.Navigation)
+        eventAttributes: Map<String, String>,
+    ): List<ReportingMessage> =
+        logEvent(
+            MPEvent
+                .Builder(screenName, MParticle.EventType.Navigation)
                 .customAttributes(eventAttributes)
-                .build()
+                .build(),
         )!!
-    }
 
-    override fun setUserAttribute(key: String, value: String) {
+    override fun setUserAttribute(
+        key: String,
+        value: String,
+    ) {
         if (isEnterprise) {
-            Analytics.getConfiguration()
+            Analytics
+                .getConfiguration()
                 .setPersistentLabel(KitUtils.sanitizeAttributeKey(key), value)
         }
     }
 
-    override fun setUserAttributeList(key: String, list: List<String>) {}
+    override fun setUserAttributeList(
+        key: String,
+        list: List<String>,
+    ) {}
+
     override fun supportsAttributeLists(): Boolean = !isEnterprise
+
     override fun setAllUserAttributes(
         attributes: Map<String, String>,
-        attributeLists: Map<String, List<String>>
+        attributeLists: Map<String, List<String>>,
     ) {
         if (isEnterprise) {
             for ((key, value) in attributes) {
@@ -110,7 +124,10 @@ class ComscoreKit : KitIntegration(), KitIntegration.EventListener, AttributeLis
 
     override fun logout(): List<ReportingMessage> = emptyList()
 
-    override fun setUserIdentity(identityType: IdentityType, id: String) {
+    override fun setUserIdentity(
+        identityType: IdentityType,
+        id: String,
+    ) {
         if (isEnterprise) {
             Analytics.getConfiguration().setPersistentLabel(identityType.toString(), id)
         }
@@ -120,11 +137,13 @@ class ComscoreKit : KitIntegration(), KitIntegration.EventListener, AttributeLis
 
     override fun onKitCreate(
         settings: Map<String, String>,
-        context: Context
+        context: Context,
     ): List<ReportingMessage> {
-        val partnerConfiguration = PartnerConfiguration.Builder()
-            .partnerId(settings[PARTNER_ID])
-            .build()
+        val partnerConfiguration =
+            PartnerConfiguration
+                .Builder()
+                .partnerId(settings[PARTNER_ID])
+                .build()
         Analytics.getConfiguration().addClient(partnerConfiguration)
         val builder = PublisherConfiguration.Builder()
         builder.publisherId(getSettings()[CLIENT_ID])
@@ -147,23 +166,22 @@ class ComscoreKit : KitIntegration(), KitIntegration.EventListener, AttributeLis
                 this,
                 ReportingMessage.MessageType.APP_STATE_TRANSITION,
                 System.currentTimeMillis(),
-                null
-            )
+                null,
+            ),
         )
         return messageList
     }
 
     override fun onActivitySaveInstanceState(
         activity: Activity,
-        outState: Bundle?
+        outState: Bundle?,
     ): List<ReportingMessage> = emptyList()
-
 
     override fun onActivityDestroyed(activity: Activity): List<ReportingMessage> = emptyList()
 
     override fun onActivityCreated(
         activity: Activity,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): List<ReportingMessage> = emptyList()
 
     override fun onActivityResumed(activity: Activity): List<ReportingMessage> {
@@ -174,8 +192,8 @@ class ComscoreKit : KitIntegration(), KitIntegration.EventListener, AttributeLis
                 this,
                 ReportingMessage.MessageType.APP_STATE_TRANSITION,
                 System.currentTimeMillis(),
-                null
-            )
+                null,
+            ),
         )
         return messageList
     }
@@ -194,9 +212,8 @@ class ComscoreKit : KitIntegration(), KitIntegration.EventListener, AttributeLis
                 this,
                 ReportingMessage.MessageType.OPT_OUT,
                 System.currentTimeMillis(),
-                null
-            )
-                .setOptOut(optOutStatus)
+                null,
+            ).setOptOut(optOutStatus),
         )
         return messageList
     }
