@@ -8,7 +8,7 @@ import org.mockito.Mockito
 
 class KitTests {
     private val kit: KitIntegration
-       get() = ComscoreKit()
+        get() = ComscoreKit()
 
     @Test
     @Throws(Exception::class)
@@ -27,7 +27,7 @@ class KitTests {
         var e: Exception? = null
         try {
             val kit = kit
-            val settings= HashMap<String, String>()
+            val settings = HashMap<String, String>()
             settings["fake setting"] = "fake"
             kit.onKitCreate(settings, Mockito.mock(Context::class.java))
         } catch (ex: Exception) {
@@ -49,6 +49,5 @@ class KitTests {
             }
         }
         Assert.fail("$className not found as a known integration.")
-
     }
 }
